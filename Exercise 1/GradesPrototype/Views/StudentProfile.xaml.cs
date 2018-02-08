@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -47,29 +46,37 @@ namespace GradesPrototype.Views
             if (Back != null)
             {
                 Back(sender, e);
-
-                new Random().Next();
             }
         }
         #endregion
 
+
         public void Refresh()
         {
-            Match matchNames = Regex.Match(SessionContext.CurrentStudent, @"([^ ]+) ([^ ]+)");
-
-            if (matchNames.Success)
-            {
-                string studentFirstName = matchNames.Groups[1].Value;       //Have to start at [1] because [0] gives the full name, for some reason. Anything after 2 results into a blank result.
-                string studentLastName = matchNames.Groups[2].Value;
-
-                ((TextBlock)studentName.Children[0]).Text = studentFirstName;
-                ((TextBlock)studentName.Children[1]).Text = studentLastName;
-            }
+            // TODO: Exercise 3: Task 4a: Display the details for the current student (held in SessionContext.CurrentStudent) 
+            studentName.DataContext = SessionContext.CurrentStudent;
 
             if (SessionContext.UserRole == Role.Student)
             {
                 btnBack.Visibility = Visibility.Collapsed;
             }
+
+            if (SessionContext.UserRole == Role.Teacher)
+            {
+                btnBack.Visibility = Visibility.Visible;
+            }
+
+            // TODO: Exercise 3: Task 4d: Create a list of the grades for the student and display this list on the page
+            ArrayList grades = new ArrayList();
+            foreach (Grade grade in DataSource.Grades)
+            {
+                if (grade.StudentID == SessionContext.CurrentStudent.StudentID)
+                {
+                    grades.Add(grade);
+                }
+            }
+            
+            studentGrades.ItemsSource = grades;
         }
     }
 }

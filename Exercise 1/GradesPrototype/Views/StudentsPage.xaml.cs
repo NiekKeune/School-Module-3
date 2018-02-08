@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,30 +30,46 @@ namespace GradesPrototype.Views
 
         #region Display Logic
 
-        // Display students for the current teacher
-        // Student details are hard coded in the XAML definition of the view
+        // TODO: Exercise 3: Task 3a: Display students for the current teacher (held in SessionContext.CurrentTeacher )
         public void Refresh()
         {
-            // Display the class name - hard-coded
-            txtClass.Text = "3A";
+            ArrayList students = new ArrayList();
+
+            foreach (Student student in DataSource.Students)
+            {
+                if (student.TeacherID == SessionContext.CurrentTeacher.TeacherID)
+                {
+                    students.Add(student);
+                }
+            }
+
+            list.ItemsSource = students;
+
+            txtClass.Text = String.Format("Class {0}", SessionContext.CurrentTeacher.Class);
         }
         #endregion
-        
+
         #region Event Members
         public delegate void StudentSelectionHandler(object sender, StudentEventArgs e);
         public event StudentSelectionHandler StudentSelected;
         #endregion
 
         #region Event Handlers
+
+        // TODO: Exercise 3: Task 3b: If the user clicks on a student, display the details for that student
         private void Student_Click(object sender, RoutedEventArgs e)
         {
-            Button itemClicked = sender as Button;
-            if (itemClicked != null)
             {
-                string studentName = (string)itemClicked.Tag;
-                if (StudentSelected != null)
+                Button itemClicked = sender as Button;
+                if (itemClicked != null)
                 {
-                    StudentSelected(sender, new StudentEventArgs(studentName));
+                    int studentID = (int)itemClicked.Tag;
+                    if (StudentSelected != null)
+                    {
+                        Student student = (Student)itemClicked.DataContext;
+
+                        StudentSelected(sender, new StudentEventArgs(student));
+                    }
                 }
             }
         }
@@ -64,9 +79,9 @@ namespace GradesPrototype.Views
     // EventArgs class for passing Student information to an event
     public class StudentEventArgs : EventArgs
     {
-        public string Child { get; set; }
+        public Student Child { get; set; }
 
-        public StudentEventArgs(string s)
+        public StudentEventArgs(Student s)
         {
             Child = s;
         }
